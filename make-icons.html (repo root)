@@ -1,0 +1,32 @@
+<!doctype html>
+<title>Make PWA Icons</title>
+<meta charset="utf-8">
+<body style="background:#0b0e13;color:#fff;font-family:sans-serif;padding:20px">
+<h1>Make PWA Icons</h1>
+<p>Click to download 192×192 and 512×512 PNGs.</p>
+<button id="btn">Generate Icons</button>
+<script>
+function makeIcon(size) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const g = c.getContext('2d');
+  // bg
+  g.fillStyle = '#0b0e13'; g.fillRect(0,0,size,size);
+  // gradient square
+  const grd = g.createLinearGradient(0,0,size,size);
+  grd.addColorStop(0,'#80a7ff'); grd.addColorStop(1,'#14e3b5');
+  const r = Math.round(size*0.18);
+  g.beginPath();
+  g.moveTo(r,0); g.lineTo(size-r,0); g.quadraticCurveTo(size,0,size,r);
+  g.lineTo(size,size-r); g.quadraticCurveTo(size,size,size-r,size);
+  g.lineTo(r,size); g.quadraticCurveTo(0,size,0,size-r);
+  g.lineTo(0,r); g.quadraticCurveTo(0,0,r,0); g.closePath();
+  g.fillStyle = grd; g.fill();
+  // download
+  const a = document.createElement('a');
+  a.download = 'icon-' + size + '.png';
+  a.href = c.toDataURL('image/png');
+  a.click();
+}
+document.getElementById('btn').onclick = () => { makeIcon(192); makeIcon(512); };
+</script>
+</body>
