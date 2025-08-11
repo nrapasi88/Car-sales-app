@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Auto Sales Studio</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sales Studio">
+<meta name="theme-color" content="#0b0e13">
+<style>
+:root{
+  --bg:#0b0e13; --panel:#131826; --panel2:#161c2c; --card:#0f1421; --border:#252c3a;
+  --text:#f3f6ff; --muted:#9aa7bd; --acc:#80a7ff; --acc2:#14e3b5; --danger:#ff6b6b;
+  --shadow:0 12px 30px rgba(0,0,0,.35); --r:16px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--text);
+  font-family:-apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  background:
+    radial-gradient(1200px 500px at 120% -10%, rgba(128,167,255,.10), transparent 60%),
+    radial-gradient(900px 400px at -20% -20%, rgba(20,227,181,.08), transparent 60%),
+    var(--bg);
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+}
+header{
+  position:sticky; top:0; z-index:50;
+  backdrop-filter:saturate(140%) blur(10px);
+  background:linear-gradient(180deg, rgba(11,14,19,.95), rgba(11,14,19,.7));
+  border-bottom:1px solid var(--border);
+}
+.header-inner{display:flex; align-items:center; gap:12px; padding:14px 16px;}
+.brand{width:36px; height:36px; border-radius:12px; background:conic-gradient(from 180deg,var(--acc),var(--acc2),var(--acc)); box-shadow:var(--shadow);}
+h1{margin:0; font-size:20px; letter-spacing:.2px;}
+.sub{color:var(--muted); font-size:12px;}
+.tabs{display:flex; gap:8px; padding:10px 12px; overflow:auto;}
+.tab{flex:0 0 auto; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--card); color:var(--text);}
+.tab.active{border-color:rgba(128,167,255,.45); background:linear-gradient(90deg, rgba(128,167,255,.12), rgba(20,227,181,.12));}
+.container{padding:18px; padding-bottom:120px; max-width:1100px; margin:0 auto;}
+.grid{display:grid; gap:16px;}
+@media(min-width:860px){ .grid.cols-2{grid-template-columns:1fr 1fr;} .grid.cols-3{grid-template-columns:1.2fr 1fr 1fr;} }
+.card{background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00)), var(--panel); border:1px solid var(--border); border-radius:var(--r); box-shadow:var(--shadow); padding:16px;}
+.card h2{margin:0 0 8px 0; font-size:18px;}
+.card p{margin:4px 0; color:var(--muted);}
+.kpi{display:grid; grid-template-columns:repeat(4,1fr); gap:12px;}
+.tile{background:var(--panel2); border:1px solid var(--border); border-radius:14px; padding:12px;}
+.label{font-size:12px; color:var(--muted)}
+.value{font-size:22px; font-weight:800; margin-top:6px;}
+.progress{position:relative; height:12px; background:#0b0f17; border:1px solid var(--border); border-radius:999px; overflow:hidden; margin-top:8px;}
+.progress span{position:absolute; left:0; top:0; bottom:0; width:0%; background:linear-gradient(90deg, var(--acc), var(--acc2)); transition:width .5s ease;}
+.row{display:flex; gap:10px; flex-wrap:wrap}
+.row > *{flex:1 1 200px}
+input, select, button, textarea{
+  width:100%; padding:12px 14px; outline:none; border-radius:12px;
+  border:1px solid var(--border); background:#0b1018; color:var(--text); font-size:16px;
+}
+textarea{min-height:90px; resize:vertical;}
+button{background:linear-gradient(90deg, var(--acc), var(--acc2)); color:#081018; font-weight:800; border:none; cursor:pointer; box-shadow:var(--shadow);}
+button.secondary{ background:#0b1018; color:var(--text); border:1px solid var(--border); }
+button.ghost{ background:transparent; color:var(--muted); border:1px dashed var(--border); }
+button.danger{ background:linear-gradient(90deg, var(--danger), #ff9f9f); color:white; }
+.table{width:100%; border-collapse:collapse; margin-top:8px;}
+.table th, .table td{border-bottom:1px solid var(--border); padding:10px 6px; font-size:14px; text-align:left; vertical-align:top;}
+.table th{color:var(--muted); font-weight:600;}
+.table tr:hover td{background:#121625;}
+.badge{display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--border); color:var(--muted); font-size:12px;}
+.small{font-size:12px; color:var(--muted);}
+.empty{padding:18px; border:1px dashed var(--border); border-radius:12px; text-align:center; color:var(--muted);}
+footer.nav{
+  position:fixed; bottom:0; left:0; right:0; z-index:60;
+  background:linear-gradient(0deg, rgba(11,14,19,.94), rgba(11,14,19,.82));
+  border-top:1px solid var(--border);
+  display:grid; grid-template-columns: repeat(6, 1fr);
+}
+footer.nav button{
+  appearance:none; background:transparent; border:none; border-right:1px solid var(--border);
+  padding:10px 6px; color:var(--muted);
+}
+footer.nav button:last-child{border-right:none}
+footer.nav button.active{color:var(--text)}
+footer.nav .icon{display:block; font-size:20px;}
+footer.nav .txt{font-size:11px; margin-top:2px;}
+.chart-wrap{position:relative; height:220px; border:1px solid var(--border); border-radius:12px; background:var(--card); overflow:hidden;}
+canvas{display:block; width:100%; height:100%;}
+.visually-hidden{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;}
+#dbg{position:fixed;top:8px;right:8px;background:#7c1f1f;color:#fff;padding:6px 10px;border-radius:8px;display:none;z-index:999}
+</style>
+</head>
+<body>
+<div id="dbg">JS Error</div>
+<header>
+  <div class="header-inner">
+    <div class="brand" aria-hidden="true"></div>
+    <div>
+      <h1>Auto Sales Studio</h1>
+      <div class="sub">Track sales • Leads • Appointments • Goals</div>
+    </div>
+  </div>
+  <div class="tabs" role="tablist" aria-label="Primary">
+    <button class="tab active" data-panel="dashboard" role="tab" aria-selected="true">Dashboard</button>
+    <button class="tab" data-panel="add" role="tab">Add Sale</button>
+    <button class="tab" data-panel="leads" role="tab">Leads</button>
+    <button class="tab" data-panel="appts" role="tab">Appointments</button>
+    <button class="tab" data-panel="reports" role="tab">Reports</button>
+    <button class="tab" data-panel="settings" role="tab">Settings</button>
+  </div>
+</header>
+
+<main class="container">
+  <!-- DASHBOARD -->
+  <section id="panel-dashboard" class="grid cols-2">
+    <div class="card">
+      <h2>This Month</h2>
+      <div class="kpi">
+        <div class="tile">
+          <div class="label">Cars Sold</div>
+          <div class="value" id="kpi-cars">0</div>
+          <div class="progress"><span id="prog-cars"></span></div>
+          <div class="small" id="kpi-cars-target"></div>
+        </div>
+        <div class="tile">
+          <div class="label">Commission</div>
+          <div class="value" id="kpi-comm">$0</div>
+          <div class="progress"><span id="prog-comm"></span></div>
+          <div class="small" id="kpi-comm-target"></div>
+        </div>
+        <div class="tile">
+          <div class="label">Avg per Sale</div>
+          <div class="value" id="kpi-avg">$0</div>
+          <span class="badge" id="kpi-top-model">Top: —</span>
+        </div>
+        <div class="tile">
+          <div class="label">Appointments</div>
+          <div class="value" id="kpi-appts">0</div>
+          <div class="small" id="kpi-next-appt">Next: —</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Recent Sales</h2>
+      <table class="table" id="sales-table">
+        <thead><tr><th>Date</th><th>Customer</th><th>Vehicle</th><th>Price</th><th>Comm</th><th></th></tr></thead>
+        <tbody id="sales-tbody">
+          <tr><td colspan="6"><div class="empty">No sales yet. Add your first one →</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Month Overview</h2>
+      <div class="chart-wrap"><canvas id="chart"></canvas></div>
+      <div class="small">Tap a bar to jump to that month in Reports.</div>
+    </div>
+
+    <div class="card">
+      <h2>Today</h2>
+      <div id="today-list" class="small">No appointments or follow-ups today.</div>
+    </div>
+  </section>
+
+  <!-- ADD SALE -->
+  <section id="panel-add" style="display:none">
+    <div class="card">
+      <h2>Add Sale</h2>
+      <div class="row">
+        <input type="date" id="sale-date">
+        <input type="text" id="sale-customer" placeholder="Customer name">
+      </div>
+      <div class="row">
+        <input type="text" id="sale-vehicle" placeholder="Vehicle (e.g., 2019 Jeep Cherokee)">
+        <input type="text" id="sale-vin" placeholder="VIN (optional)">
+      </div>
+      <div class="row">
+        <input type="number" id="sale-price" placeholder="Sale Price (e.g., 27500)" inputmode="decimal">
+        <select id="comm-type">
+          <option value="percent">Commission %</option>
+          <option value="flat">Flat Commission</option>
+        </select>
+        <input type="number" id="sale-commission" placeholder="e.g., 2.5 or 500" inputmode="decimal">
+      </div>
+      <div class="row">
+        <input type="number" id="sale-spiff" placeholder="Spiff/Bonus (optional)" inputmode="decimal">
+        <textarea id="sale-notes" placeholder="Notes (trim, color, trade-in, etc.)"></textarea>
+      </div>
+      <div class="row">
+        <button id="btn-add">Save Sale</button>
+        <button class="secondary" id="btn-clear-form">Clear</button>
+      </div>
+      <p class="small">Tip: Leave commission blank to auto-use your default rate in Settings.</p>
+    </div>
+  </section>
+
+  <!-- LEADS -->
+  <section id="panel-leads" style="display:none">
+    <div class="card">
+      <h2>Leads</h2>
+      <div class="row">
+        <input type="text" id="lead-name" placeholder="Name">
+        <input type="tel" id="lead-phone" placeholder="Phone">
+        <input type="text" id="lead-source" placeholder="Source (walk-in, web, referral)">
+      </div>
+      <div class="row">
+        <input type="date" id="lead-next" placeholder="Next follow-up">
+        <textarea id="lead-notes" placeholder="Notes"></textarea>
+      </div>
+      <div class="row">
+        <button id="btn-add-lead">Add Lead</button>
+        <div class="row" style="gap:6px;flex-wrap:nowrap">
+          <button class="secondary" data-filter="open">Open</button>
+          <button class="secondary" data-filter="all">All</button>
+        </div>
+      </div>
+      <table class="table" id="leads-table">
+        <thead><tr><th>Name</th><th>Status</th><th>Next</th><th>Source</th><th></th></tr></thead>
+        <tbody id="leads-tbody">
+          <tr><td colspan="5"><div class="empty">No leads yet. Add your first above.</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- APPOINTMENTS -->
+  <section id="panel-appts" style="display:none">
+    <div class="card">
+      <h2>Appointments</h2>
+      <div class="row">
+        <input type="text" id="appt-title" placeholder="Title (e.g., Test drive for Alex)">
+        <input type="datetime-local" id="appt-when">
+      </div>
+      <div class="row">
+        <input type="text" id="appt-customer" placeholder="Customer (optional)">
+        <textarea id="appt-notes" placeholder="Notes"></textarea>
+      </div>
+      <div class="row">
+        <button id="btn-add-appt">Add Appointment</button>
+        <button class="secondary" id="btn-clear-appt">Clear</button>
+      </div>
+      <table class="table" id="appts-table">
+        <thead><tr><th>When</th><th>Title</th><th>Customer</th><th></th></tr></thead>
+        <tbody id="appts-tbody">
+          <tr><td colspan="4"><div class="empty">No appointments yet.</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- REPORTS -->
+  <section id="panel-reports" style="display:none">
+    <div class="card">
+      <h2>Reports</h2>
+      <div class="row">
+        <input type="month" id="rep-month">
+        <div class="row" style="gap:6px;flex-wrap:nowrap">
+          <button class="secondary" data-rep="cars">Cars</button>
+          <button class="secondary" data-rep="commission">Commission</button>
+        </div>
+        <button class="secondary" id="btn-export-month">Export Month</button>
+      </div>
+      <div class="chart-wrap"><canvas id="chart2"></canvas></div>
+      <table class="table" id="rep-table">
+        <thead><tr><th>Date</th><th>Customer</th><th>Vehicle</th><th>Price</th><th>Comm</th><th>Spiff</th><th></th></tr></thead>
+        <tbody id="rep-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="panel-settings" style="display:none">
+    <div class="grid cols-2">
+      <div class="card">
+        <h2>Goals & Defaults</h2>
+        <div class="row">
+          <input type="number" id="goal-cars" placeholder="Cars per month">
+          <input type="number" id="goal-commission" placeholder="Commission target ($)">
+        </div>
+        <div class="row">
+          <input type="number" id="default-rate" placeholder="Default commission % (e.g., 2.5)">
+          <input type="text" id="currency-symbol" placeholder="Currency symbol" value="$">
+        </div>
+        <div class="row">
+          <button id="btn-save-goals">Save Settings</button>
+          <button class="ghost" id="btn-seed">Load Demo Data</button>
+        </div>
+        <p class="small">Demo data is fake and can be cleared any time.</p>
+      </div>
+      <div class="card">
+        <h2>Data</h2>
+        <div class="row">
+          <button class="secondary" id="btn-export">Export All</button>
+          <input type="file" id="file-import" accept="application/json" style="display:none">
+          <button class="secondary" id="btn-import">Import</button>
+          <button class="danger" id="btn-reset">Reset All</button>
+        </div>
+        <p class="small">Export creates a JSON you can back up or move between devices.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="nav" role="navigation" aria-label="Bottom">
+  <button class="active" data-panel="dashboard"><span class="icon">🏠</span><span class="txt">Home</span></button>
+  <button data-panel="add"><span class="icon">➕</span><span class="txt">Sale</span></button>
+  <button data-panel="leads"><span class="icon">👥</span><span class="txt">Leads</span></button>
+  <button data-panel="appts"><span class="icon">🗓️</span><span class="txt">Appts</span></button>
+  <button data-panel="reports"><span class="icon">📊</span><span class="txt">Reports</span></button>
+  <button data-panel="settings"><span class="icon">⚙️</span><span class="txt">Settings</span></button>
+</footer>
+
+<script>
+(function(){
+  // ===== Utilities =====
+  function $(sel){ return document.querySelector(sel); }
+  function $all(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+  function moneyFmt(n,sym){ n=Number(n||0); return (sym||'$') + n.toLocaleString(undefined,{maximumFractionDigits:2}); }
+  function todayStr(){ return new Date().toISOString().slice(0,10); }
+  function ymKey(d){ var dt=new Date(d); if(!+dt) return ''; return dt.getFullYear()+'-'+('0'+(dt.getMonth()+1)).slice(-2); }
+  function monthLabel(ym){ var p=ym.split('-'); return new Date(+p[0], +p[1]-1, 1).toLocaleDateString(undefined,{month:'long', year:'numeric'}); }
+  function uuid(){ return String(Date.now()) + Math.random().toString(16).slice(2); }
+  function byMonth(items, ym){ return items.filter(function(s){ return ymKey(s.date||s.when)===ym; }); }
+  function sum(arr, key){ var t=0; for(var i=0;i<arr.length;i++){ t+=Number(arr[i][key]||0); } return t; }
+
+  // ===== Storage =====
+  var STORE='auto_sales_studio_v1';
+  function defaultState(){ return {goals:{cars:12, commission:9000, defaultRate:2.5, currencySymbol:'$'}, sales:[], leads:[], appts:[]}; }
+  function load(){ try{ return JSON.parse(localStorage.getItem(STORE))||defaultState(); }catch(e){ return defaultState(); } }
+  function save(s){ localStorage.setItem(STORE, JSON.stringify(s)); }
+  var state = load();
+
+  // ===== Nav / Panels =====
+  function showPanel(name){
+    $all('.tab').forEach(function(b){ var on=b.getAttribute('data-panel')===name; b.classList.toggle('active', on); b.setAttribute('aria-selected', on?'true':'false'); });
+    $all('footer.nav button').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-panel')===name); });
+    ['dashboard','add','leads','appts','reports','settings'].forEach(function(id){
+      var el=$('#panel-'+id); if(el){ el.style.display=(id===name)?(id==='dashboard'?'grid':'block'):'none'; }
+    });
+    if(name==='dashboard') renderDashboard();
+    if(name==='leads') renderLeads();
+    if(name==='appts') renderAppts();
+    if(name==='reports') initReports();
+  }
+  $all('.tab').forEach(function(b){ b.addEventListener('click', function(){ showPanel(b.getAttribute('data-panel')); }); });
+  $all('footer.nav button').forEach(function(b){ b.addEventListener('click', function(){ showPanel(b.getAttribute('data-panel')); }); });
+
+  // ===== Add Sale =====
+  $('#sale-date').value = todayStr();
+  $('#sale-commission').placeholder = state.goals.defaultRate || 2.5;
+  $('#btn-add').addEventListener('click', function(){
+    var date = $('#sale-date').value || todayStr();
+    var customer = ($('#sale-customer').value||'').trim();
+    var vehicle = ($('#sale-vehicle').value||'').trim();
+    var vin = ($('#sale-vin').value||'').trim();
+    var price = parseFloat($('#sale-price').value||0);
+    var type = $('#comm-type').value;
+    var rateOrFlat = parseFloat($('#sale-commission').value||0);
+    var spiff = parseFloat($('#sale-spiff').value||0);
+    var notes = ($('#sale-notes').value||'').trim();
+    if(!vehicle || !price){ alert('Please enter vehicle and price.'); return; }
+    if(!rateOrFlat && type==='percent'){ rateOrFlat = (state.goals.defaultRate||0); }
+    var id = uuid();
+    var commission = (type==='percent') ? (price * (rateOrFlat||0)/100) : (rateOrFlat||0);
+    state.sales.push({id:id,date:date,customer:customer,vehicle:vehicle,vin:vin,price:price,type:type,rate:rateOrFlat,commission:commission,spiff:spiff,notes:notes});
+    save(state);
+    ['#sale-customer','#sale-vehicle','#sale-vin','#sale-price','#sale-commission','#sale-spiff','#sale-notes'].forEach(function(sel){ $(sel).value=''; });
+    renderDashboard(); initReports(); showPanel('dashboard');
+  });
+  $('#btn-clear-form').addEventListener('click', function(){ ['#sale-customer','#sale-vehicle','#sale-vin','#sale-price','#sale-commission','#sale-spiff','#sale-notes'].forEach(function(sel){ $(sel).value=''; }); });
+
+  // ===== Leads =====
+  var STATUS = ['New','Contacted','Appt Set','Working','Sold','Lost'];
+  $('#btn-add-lead').addEventListener('click', function(){
+    var name = ($('#lead-name').value||'').trim(); if(!name){ alert('Enter a name'); return; }
+    var phone = ($('#lead-phone').value||'').trim();
+    var source = ($('#lead-source').value||'').trim();
+    var next = $('#lead-next').value || '';
+    var notes = ($('#lead-notes').value||'').trim();
+    var id = uuid();
+    state.leads.push({id:id,name:name,phone:phone,source:source,status:'New',next:next,notes:notes,created:todayStr()});
+    save(state);
+    ['#lead-name','#lead-phone','#lead-source','#lead-next','#lead-notes'].forEach(function(sel){ $(sel).value=''; });
+    renderLeads();
+  });
+
+  function renderLeads(){
+    var tbody = $('#leads-tbody'); tbody.innerHTML='';
+    var activeFilter = document.querySelector('[data-filter].active');
+    var filter = activeFilter ? activeFilter.getAttribute('data-filter') : 'open';
+    var leads = state.leads.slice().sort(function(a,b){ return (a.next||'') > (b.next||'') ? 1 : -1; });
+    if(filter==='open'){ leads = leads.filter(function(l){ return l.status!=='Sold' && l.status!=='Lost'; }); }
+    if(!leads.length){ tbody.innerHTML = '<tr><td colspan="5"><div class="empty">No leads to show.</div></td></tr>'; return; }
+    leads.forEach(function(l){
+      var tr=document.createElement('tr');
+      var opts = STATUS.map(function(s){ return '<option '+(s===l.status?'selected':'')+'>'+s+'</option>'; }).join('');
+      tr.innerHTML =
+        '<td>'+l.name+'<div class="small">'+(l.phone||'')+'</div></td>'+
+        '<td><select data-id="'+l.id+'" class="lead-status">'+opts+'</select></td>'+
+        '<td><input type="date" class="lead-next" data-id="'+l.id+'" value="'+(l.next||'')+'"></td>'+
+        '<td>'+(l.source||'')+'</td>'+
+        '<td>'+
+          '<button class="secondary" data-action="to-sale" data-id="'+l.id+'">Make Sale</button> '+
+          '<button class="secondary" data-action="to-appt" data-id="'+l.id+'">Appt</button> '+
+          '<button class="danger" data-action="del-lead" data-id="'+l.id+'">✕</button>'+
+        '</td>';
+      tbody.appendChild(tr);
+    });
+    $all('#leads-tbody .lead-status').forEach(function(el){
+      el.addEventListener('change', function(e){
+        var id=e.target.getAttribute('data-id'); var l=state.leads.find(function(x){return x.id===id;}); if(!l) return; l.status=e.target.value; save(state); renderDashboard();
+      });
+    });
+    $all('#leads-tbody .lead-next').forEach(function(el){
+      el.addEventListener('change', function(e){
+        var id=e.target.getAttribute('data-id'); var l=state.leads.find(function(x){return x.id===id;}); if(!l) return; l.next=e.target.value; save(state); renderDashboard();
+      });
+    });
+    $all('#leads-tbody [data-action="del-lead"]').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        var id=e.target.getAttribute('data-id'); if(!confirm('Delete lead?')) return; state.leads = state.leads.filter(function(x){return x.id!==id;}); save(state); renderLeads(); renderDashboard();
+      });
+    });
+    $all('#leads-tbody [data-action="to-sale"]').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        var id=e.target.getAttribute('data-id'); var l=state.leads.find(function(x){return x.id===id;}); if(!l) return;
+        $('#sale-customer').value = l.name; $('#sale-notes').value = (l.notes? l.notes+' ' : '') + (l.phone? 'Phone: '+l.phone : '');
+        showPanel('add');
+      });
+    });
+    $all('#leads-tbody [data-action="to-appt"]').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        var id=e.target.getAttribute('data-id'); var l=state.leads.find(function(x){return x.id===id;}); if(!l) return;
+        $('#appt-title').value = 'Meet '+l.name; $('#appt-customer').value = l.name;
+        var dt = new Date(Date.now()+60*60*1000); $('#appt-when').value = dt.toISOString().slice(0,16);
+        showPanel('appts');
+      });
+    });
+    // filter toggles
+    $all('[data-filter]').forEach(function(b){
+      b.onclick=function(){
+        $all('[data-filter]').forEach(function(x){ x.classList.toggle('active', x===b); });
+        renderLeads();
+      };
+    });
+  }
+
+  // ===== Appointments =====
+  $('#btn-add-appt').addEventListener('click', function(){
+    var title = ($('#appt-title').value||'').trim();
+    var when = $('#appt-when').value;
+    if(!title || !when){ alert('Add a title and time'); return; }
+    var customer = ($('#appt-customer').value||'').trim();
+    var notes = ($('#appt-notes').value||'').trim();
+    var id = uuid();
+    state.appts.push({id:id, title:title, when:when, customer:customer, notes:notes});
+    save(state);
+    ['#appt-title','#appt-when','#appt-customer','#appt-notes'].forEach(function(sel){ $(sel).value=''; });
+    renderAppts(); renderDashboard();
+  });
+  $('#btn-clear-appt').addEventListener('click', function(){ ['#appt-title','#appt-when','#appt-customer','#appt-notes'].forEach(function(sel){ $(sel).value=''; }); });
+  function renderAppts(){
+    var tbody = $('#appts-tbody'); tbody.innerHTML='';
+    var list = state.appts.slice().sort(function(a,b){ return new Date(a.when)-new Date(b.when); });
+    if(!list.length){ tbody.innerHTML = '<tr><td colspan="4"><div class="empty">No appointments.</div></td></tr>'; return; }
+    list.forEach(function(a){
+      var tr=document.createElement('tr');
+      tr.innerHTML =
+        '<td>'+new Date(a.when).toLocaleString()+'</td>'+
+        '<td>'+a.title+'</td>'+
+        '<td>'+(a.customer||'')+'</td>'+
+        '<td><button class="secondary" data-action="del-appt" data-id="'+a.id+'">✕</button></td>';
+      tbody.appendChild(tr);
+    });
+    $all('#appts-tbody [data-action="del-appt"]').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        var id=e.target.getAttribute('data-id'); if(!confirm('Delete appointment?')) return; state.appts = state.appts.filter(function(x){return x.id!==id;}); save(state); renderAppts(); renderDashboard();
+      });
+    });
+  }
+
+  // ===== Dashboard =====
+  function renderDashboard(){
+    var ym = ymKey(new Date());
+    var sales = byMonth(state.sales, ym);
+    var cars = sales.length;
+    var commission = sum(sales,'commission') + sum(sales,'spiff');
+    var avg = cars? commission/cars : 0;
+    var goals = state.goals;
+    $('#kpi-cars').textContent = String(cars);
+    $('#kpi-comm').textContent = moneyFmt(commission, goals.currencySymbol);
+    $('#kpi-avg').textContent = moneyFmt(avg, goals.currencySymbol);
+    $('#kpi-cars-target').textContent = 'Goal: '+(goals.cars||0)+' cars';
+    $('#kpi-comm-target').textContent = 'Goal: '+moneyFmt(goals.commission||0, goals.currencySymbol);
+    $('#prog-cars').style.width = Math.min(100, (cars/Math.max(1, goals.cars||1))*100) + '%';
+    $('#prog-comm').style.width = Math.min(100, (commission/Math.max(1, goals.commission||1))*100) + '%';
+    // Top model
+    var top='—'; if(sales.length){ var cnt={},k; sales.forEach(function(s){ cnt[s.vehicle]=(cnt[s.vehicle]||0)+1; }); var best=null; for(k in cnt){ if(!best||cnt[k]>cnt[best]) best=k; } top=best; }
+    $('#kpi-top-model').textContent = 'Top: ' + (top||'—');
+    // Appts
+    var monthAppts = byMonth(state.appts, ym);
+    $('#kpi-appts').textContent = monthAppts.length;
+    var upcoming = state.appts.slice().filter(function(a){return new Date(a.when)>new Date();}).sort(function(a,b){return new Date(a.when)-new Date(b.when);})[0];
+    $('#kpi-next-appt').textContent = upcoming ? (new Date(upcoming.when).toLocaleString() + ' — ' + (upcoming.title||'')) : 'Next: —';
+    // Recent table
+    var tbody = $('#sales-tbody'); tbody.innerHTML='';
+    if(!sales.length){
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty">No sales yet. Add your first one →</div></td></tr>';
+    }else{
+      sales.slice().sort(function(a,b){return new Date(b.date)-new Date(a.date)}).slice(0,8).forEach(function(s){
+        var tr=document.createElement('tr');
+        tr.innerHTML =
+          '<td>'+new Date(s.date).toLocaleDateString()+'</td>'+
+          '<td>'+(s.customer||'')+'</td>'+
+          '<td>'+s.vehicle+'</td>'+
+          '<td>'+moneyFmt(s.price, state.goals.currencySymbol)+'</td>'+
+          '<td>'+moneyFmt((s.commission||0)+(s.spiff||0), state.goals.currencySymbol)+'</td>'+
+          '<td><button class="secondary" data-id="'+s.id+'">✕</button></td>';
+        tr.querySelector('button').addEventListener('click', function(){ removeSale(s.id); });
+        tbody.appendChild(tr);
+      });
+    }
+    // Today list
+    var today = todayStr();
+    var todaysAppts = state.appts.filter(function(a){ return (a.when||'').slice(0,10)===today; });
+    var todaysFollow = state.leads.filter(function(l){ return (l.next||'')===today; });
+    var box=$('#today-list');
+    if(!todaysAppts.length && !todaysFollow.length){ box.textContent='No appointments or follow-ups today.'; }
+    else{
+      box.innerHTML='';
+      if(todaysAppts.length){
+        var ul=document.createElement('ul'); ul.className='small';
+        ul.innerHTML='<strong>Appointments</strong>'+todaysAppts.map(function(a){return '<li>'+new Date(a.when).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"})+' — '+a.title+'</li>';}).join('');
+        box.appendChild(ul);
+      }
+      if(todaysFollow.length){
+        var ul2=document.createElement('ul'); ul2.className='small';
+        ul2.innerHTML='<strong>Follow-ups</strong>'+todaysFollow.map(function(l){return '<li>'+l.name+' ('+(l.phone||'')+')</li>';}).join('');
+        box.appendChild(ul2);
+      }
+    }
+    drawMonthChart();
+  }
+  function removeSale(id){
+    if(!confirm('Delete this sale?')) return;
+    state.sales = state.sales.filter(function(s){return s.id!==id;});
+    save(state); renderDashboard(); initReports();
+  }
+
+  // ===== Charts =====
+  function getLastMonths(n){
+    var arr=[]; var now=new Date();
+    for(var i=n-1;i>=0;i--){
+      var d=new Date(now.getFullYear(), now.getMonth()-i, 1);
+      var ym=d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2);
+      arr.push(ym);
+    }
+    return arr;
+  }
+  function drawBars(ctx, data, colorA, colorB){
+    var w=ctx.canvas.width, h=ctx.canvas.height;
+    ctx.clearRect(0,0,w,h);
+    ctx.strokeStyle='rgba(255,255,255,.06)'; ctx.lineWidth=1;
+    for(var i=0;i<5;i++){ var y=h-(i*(h/5)); ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+    var maxVal=1; for(var j=0;j<data.length;j++){ if(data[j].value>maxVal) maxVal=data[j].value; }
+    var gap=8; var barW=(w-gap*(data.length+1))/data.length;
+    for(var k=0;k<data.length;k++){
+      var x=gap + k*(barW+gap);
+      var hgt=(data[k].value/maxVal)*(h-20);
+      var y=h-hgt-4;
+      var g=ctx.createLinearGradient(x,y,x,y+hgt);
+      g.addColorStop(0, colorA); g.addColorStop(1, colorB);
+      ctx.fillStyle=g; ctx.fillRect(x,y,barW,hgt);
+    }
+  }
+  function drawMonthChart(){
+    var canvas=$('#chart'); var dpr=window.devicePixelRatio||1;
+    var wrap=canvas.parentElement.getBoundingClientRect();
+    canvas.width=wrap.width*dpr; canvas.height=wrap.height*dpr;
+    canvas.style.width=wrap.width+'px'; canvas.style.height=wrap.height+'px';
+    var ctx=canvas.getContext('2d');
+    var months=getLastMonths(12);
+    var data=months.map(function(ym){ return {ym:ym, value: byMonth(state.sales, ym).length}; });
+    drawBars(ctx, data, '#80a7ff','#14e3b5');
+    canvas.onclick=function(e){
+      var rect=canvas.getBoundingClientRect();
+      var x=(e.clientX-rect.left)*(canvas.width/rect.width);
+      var gap=8, n=data.length;
+      var barW=(canvas.width-gap*(n+1))/n;
+      for(var i=0;i<n;i++){
+        var bx=gap + i*(barW+gap);
+        if(x>=bx && x<=bx+barW){ $('#rep-month').value = months[i]; showPanel('reports'); initReports(); break; }
+      }
+    };
+  }
+  function drawReportChart(mode){
+    var canvas=$('#chart2'); var dpr=window.devicePixelRatio||1;
+    var wrap=canvas.parentElement.getBoundingClientRect();
+    canvas.width=wrap.width*dpr; canvas.height=wrap.height*dpr;
+    canvas.style.width=wrap.width+'px'; canvas.style.height=wrap.height+'px';
+    var ctx=canvas.getContext('2d');
+    var months=getLastMonths(12);
+    var data=months.map(function(ym){
+      var s=byMonth(state.sales, ym);
+      return {ym:ym, value: (mode==='cars') ? s.length : s.reduce(function(a,b){ return a + Number(b.commission||0) + Number(b.spiff||0); }, 0)};
+    });
+    drawBars(ctx, data, (mode==='cars')?'#80a7ff':'#14e3b5', (mode==='cars')?'#14e3b5':'#80a7ff');
+  }
+
+  // ===== Reports =====
+  function initReports(){
+    var inpt=$('#rep-month'); var curYm=ymKey(new Date());
+    if(!inpt.value){ inpt.value=curYm; }
+    renderReportTable(inpt.value);
+    var active = document.querySelector('[data-rep].active');
+    var mode = active ? active.getAttribute('data-rep') : 'cars';
+    drawReportChart(mode);
+  }
+  $('#rep-month').addEventListener('change', function(e){ renderReportTable(e.target.value); });
+  $all('[data-rep]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      $all('[data-rep]').forEach(function(x){ x.classList.toggle('active', x===btn); });
+      drawReportChart(btn.getAttribute('data-rep'));
+    });
+  });
+  function renderReportTable(ym){
+    var tbody=$('#rep-tbody'); tbody.innerHTML='';
+    var list = byMonth(state.sales, ym).slice().sort(function(a,b){ return new Date(b.date)-new Date(a.date); });
+    if(!list.length){ tbody.innerHTML = '<tr><td colspan="7"><div class="empty">No sales for '+monthLabel(ym)+'.</div></td></tr>'; return; }
+    list.forEach(function(s){
+      var tr=document.createElement('tr');
+      tr.innerHTML =
+        '<td>'+new Date(s.date).toLocaleDateString()+'</td>'+
+        '<td>'+(s.customer||'')+'</td>'+
+        '<td>'+s.vehicle+'</td>'+
+        '<td>'+moneyFmt(s.price, state.goals.currencySymbol)+'</td>'+
+        '<td>'+moneyFmt((s.commission||0), state.goals.currencySymbol)+'</td>'+
+        '<td>'+moneyFmt((s.spiff||0), state.goals.currencySymbol)+'</td>'+
+        '<td><button class="danger" data-act="del" data-id="'+s.id+'">Delete</button></td>';
+      tbody.appendChild(tr);
+    });
+    $all('#rep-tbody [data-act="del"]').forEach(function(btn){
+      btn.onclick=function(){ if(confirm('Delete sale?')){ state.sales = state.sales.filter(function(x){return x.id!==btn.getAttribute('data-id');}); save(state); renderReportTable(ym); renderDashboard(); } };
+    });
+  }
+  $('#btn-export-month').addEventListener('click', function(){
+    var ym = $('#rep-month').value || ymKey(new Date());
+    var data = byMonth(state.sales, ym);
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify({ym:ym, data:data}, null, 2)], {type:'application/json'}));
+    a.download = 'auto-sales-'+ym+'.json';
+    a.click(); URL.revokeObjectURL(a.href);
+  });
+
+  // ===== Settings & Data =====
+  $('#goal-cars').value = state.goals.cars;
+  $('#goal-commission').value = state.goals.commission;
+  $('#default-rate').value = state.goals.defaultRate;
+  $('#currency-symbol').value = state.goals.currencySymbol||'$';
+
+  $('#btn-save-goals').addEventListener('click', function(){
+    var cars = parseFloat($('#goal-cars').value||0);
+    var commission = parseFloat($('#goal-commission').value||0);
+    var defaultRate = parseFloat($('#default-rate').value||0);
+    var currencySymbol = ($('#currency-symbol').value||'$').slice(0,3);
+    state.goals = {cars:cars, commission:commission, defaultRate:defaultRate, currencySymbol:currencySymbol};
+    save(state);
+    renderDashboard();
+    alert('Settings saved.');
+  });
+
+  $('#btn-export').addEventListener('click', function(){
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], {type:'application/json'}));
+    a.download = 'auto-sales-studio-data.json'; a.click(); URL.revokeObjectURL(a.href);
+  });
+
+  $('#btn-import').addEventListener('click', function(){ $('#file-import').click(); });
+  $('#file-import').addEventListener('change', function(e){
+    var file = e.target.files[0]; if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var obj = JSON.parse(reader.result);
+        if(!obj.sales || !obj.goals || typeof obj!=='object') throw new Error('Invalid file');
+        state = obj; save(state);
+        renderDashboard(); renderLeads(); renderAppts(); initReports();
+        alert('Import complete.');
+      }catch(err){ alert('Could not import: '+(err.message||err)); }
+    };
+    reader.readAsText(file);
+  });
+
+  $('#btn-reset').addEventListener('click', function(){
+    if(confirm('This will erase all data on this device. Continue?')){
+      state = defaultState(); save(state);
+      renderDashboard(); renderLeads(); renderAppts(); initReports();
+    }
+  });
+
+  $('#btn-seed').addEventListener('click', function(){
+    if(!confirm('Load demo data? This adds sample entries.')) return;
+    var names=['Alex M.','Jordan P.','Sam R.','Taylor K.','Chris D.','Morgan L.'];
+    var vehicles=['2020 Jeep Cherokee','2021 Ford F-150','2019 Honda Civic','2022 Toyota Camry','2020 Chevy Tahoe','2021 Subaru Outback'];
+    for(var i=0;i<8;i++){
+      var d=new Date(); d.setDate(d.getDate()-Math.floor(Math.random()*25));
+      var price= 20000 + Math.floor(Math.random()*25000);
+      var type= Math.random()<0.7?'percent':'flat';
+      var rate= type==='percent' ? (state.goals.defaultRate||2.5) : (300+Math.floor(Math.random()*700));
+      var commission = type==='percent' ? price*rate/100 : rate;
+      state.sales.push({id:uuid(), date:d.toISOString().slice(0,10), customer:names[Math.floor(Math.random()*names.length)], vehicle:vehicles[Math.floor(Math.random()*vehicles.length)], vin:'', price:price, type:type, rate:rate, commission:commission, spiff: Math.random()<0.4? 150:0, notes:''});
+    }
+    // Leads & appts
+    for(i=0;i<5;i++){
+      var nd=new Date(); nd.setDate(nd.getDate()+Math.floor(Math.random()*10)-5);
+      state.leads.push({id:uuid(), name:names[Math.floor(Math.random()*names.length)], phone:'555-'+(1000+Math.floor(Math.random()*9000)), source:'web', status:'Working', next: nd.toISOString().slice(0,10), notes:'Looking for SUV', created: todayStr()});
+    }
+    for(i=0;i<3;i++){
+      nd=new Date(); nd.setDate(nd.getDate()+Math.floor(Math.random()*7)); nd.setHours(10+Math.floor(Math.random()*7), 0, 0, 0);
+      state.appts.push({id:uuid(), title:'Test drive', when: nd.toISOString().slice(0,16), customer: names[Math.floor(Math.random()*names.length)], notes:''});
+    }
+    save(state);
+    renderDashboard(); renderLeads(); renderAppts(); initReports();
+  });
+
+  // ===== Init / Events =====
+  window.addEventListener('resize', function(){ drawMonthChart(); var a=document.querySelector('[data-rep].active'); drawReportChart(a?a.getAttribute('data-rep'):'cars'); });
+  document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible'){ renderDashboard(); } });
+
+  try{
+    $('#sale-date').value = todayStr();
+    showPanel('dashboard');
+    renderDashboard(); renderLeads(); renderAppts(); initReports();
+  }catch(err){
+    var dbg=document.getElementById('dbg'); dbg.style.display='block'; dbg.textContent='JS Error: '+(err.message||err);
+  }
+})();
+</script>
+</body>
+</html>
